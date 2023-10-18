@@ -26,8 +26,8 @@ model Albums {
   title     String
   yearOfRelease Int
   image     String            @default("https://i.imgur.com/mCHMpLT.png")
-  artistAlbums ArtistAlbum[]  // New relation
-  trackArtistAlbums TrackArtistAlbum[] // New relation
+  artistAlbums ArtistAlbum[]
+  trackArtistAlbums TrackArtistAlbum[]
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
 }
@@ -36,7 +36,7 @@ model Tracks {
   id        Int               @id @default(autoincrement())
   title     String
   duration  Int
-  trackArtistAlbums TrackArtistAlbum[] // New relation
+  trackArtistAlbums TrackArtistAlbum[]
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
 }
