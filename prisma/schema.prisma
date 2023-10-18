@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Artists {
+  id        Int               @id @default(autoincrement())
+  name      String            @unique
+  image     String            @default("https://i.imgur.com/mCHMpLT.png")
+  artistAlbums ArtistAlbum[]
+  trackArtistAlbums TrackArtistAlbum[]
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+}
+
+model Albums {
+  id        Int               @id @default(autoincrement())
+  title     String
+  yearOfRelease Int
+  image     String            @default("https://i.imgur.com/mCHMpLT.png")
+  artistAlbums ArtistAlbum[]  // New relation
+  trackArtistAlbums TrackArtistAlbum[] // New relation
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+}
+
+model Tracks {
+  id        Int               @id @default(autoincrement())
+  title     String
+  duration  Int
+  trackArtistAlbums TrackArtistAlbum[] // New relation
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+}
+
+model ArtistAlbum {
+  artistId Int
+  albumId  Int
+  artist   Artists @relation(fields: [artistId], references: [id])
+  album    Albums  @relation(fields: [albumId], references: [id])
+  @@id([artistId, albumId])
+}
+
+model TrackArtistAlbum {
+  trackId  Int
+  artistId Int
+  albumId  Int
+  track    Tracks  @relation(fields: [trackId], references: [id])
+  artist   Artists @relation(fields: [artistId], references: [id])
+  album    Albums  @relation(fields: [albumId], references: [id])
+  @@id([trackId, artistId, albumId])
+}
+

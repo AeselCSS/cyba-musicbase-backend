@@ -1,17 +1,26 @@
 import express from "express";
-import { createArtistEndpoint, deleteArtist, getAllAlbumsByArtist, getAllArtists, getSingleArtist, updateArtist, searchArtists } from "./artists.controller.js";
+import {
+    createArtist,
+    createManyArtists, deleteArtist, getAllAlbumsByArtist,
+    getAllArtists,
+    getSingleArtist, searchArtists,
+    updateArtist
+} from "../controllers/artist.controller.js";
 
 const artistRouter = express.Router();
 
 
 artistRouter.route("/artists/")
     .get(getAllArtists)
-    .post(createArtistEndpoint);
+    .post(createArtist);
 
 artistRouter.route("/artists/:id")
     .get(getSingleArtist)
     .put(updateArtist)
     .delete(deleteArtist);
+
+artistRouter.route("/artists/many")
+     .post(createManyArtists);
 
 artistRouter.route("/artists/search/:searchValue")
     .get(searchArtists);
