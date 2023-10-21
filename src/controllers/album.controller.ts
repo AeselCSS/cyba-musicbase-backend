@@ -19,6 +19,13 @@ export const getSingleAlbum = async (req: Request, res: Response): Promise<void>
         const { id } = req.params;
         const album = await prisma.albums.findUnique({
             where: { id: Number(id) },
+            include: {
+                artistAlbums: {
+                    include: {
+                        artist: true,
+                    }
+                }
+            }
         });
         res.json(album);
     } catch (error: any) {
@@ -26,23 +33,26 @@ export const getSingleAlbum = async (req: Request, res: Response): Promise<void>
     }
 }
 
+
 export const createAlbum = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { title, yearOfRelease, image, artistId } = req.body;
-
-        // Create an album
+        const { title, yearOfRelease, image, artistIds } = req.body;
+        if (!title || !yearOfRelease || !image || !artistIds) {
+            throw new Error("Missing required fields: title, yearOfRelease, image, artistIds");
+        }
+        // Create album
         const album = await prisma.albums.create({
             data: { title, yearOfRelease, image },
         });
-
         // Link the album to the artist via ArtistAlbum junction table
-        await prisma.artistAlbum.create({
-            data: {
-                artistId: artistId,
-                albumId: album.id,
-            },
-        });
-
+        for (const artistId of artistIds) {
+            await prisma.artistAlbum.create({
+                data: {
+                    artistId: artistId,
+                    albumId: album.id,
+                },
+            });
+        }
         res.json(album);
     } catch (error: any) {
         res.status(500).json({ error: error.message });
@@ -54,20 +64,19 @@ export const createManyAlbums = async (req: Request, res: Response): Promise<voi
         const albums = req.body;
         const createdAlbums: any[] = [];
 
-        for (const { title, yearOfRelease, image, artistId } of albums) {
-            // Create an album
+        for (const { title, yearOfRelease, image, artistIds } of albums) {
             const createdAlbum = await prisma.albums.create({
                 data: { title, yearOfRelease, image },
             });
 
-            // Link the album to the artist via ArtistAlbum junction table
-            await prisma.artistAlbum.create({
-                data: {
-                    artistId: artistId,
-                    albumId: createdAlbum.id,
-                },
-            });
-
+            for (const artistId of artistIds) {
+                await prisma.artistAlbum.create({
+                    data: {
+                        artistId: artistId,
+                        albumId: createdAlbum.id,
+                    },
+                });
+            }
             createdAlbums.push(createdAlbum);
         }
 
